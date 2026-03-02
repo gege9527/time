@@ -9,12 +9,7 @@ const timer = async () => {
       notices.push({
         status: 'success',
         title: '✅ 签到成功',
-        message: `${cookie || '签到成功'}`
-      })
-      notices.push({
-        status: 'error',
-        title: '❌ 签到失败',
-        message: `${cookie}`,
+        message: `${cookie || '签到成功'}`,
         details: `<${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}>`
       })
     } catch (error) {
