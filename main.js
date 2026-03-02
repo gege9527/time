@@ -27,26 +27,66 @@ const timer = async () => {
 
 const formatNoticeMessage = (notices) => {
   if (!notices || notices.length === 0) {
-    return '⚠️ 未检测到任何签到任务'
+    return '<font color="warning">⚠️ 未检测到任何签到任务</font>'
   }
   
-  const messages = notices.map(notice => {
-    return `${notice.title}\n> ${notice.message}\n> ${notice.details}`
+  const successCount = notices.filter(n => n.status === 'success').length
+  const errorCount = notices.filter(n => n.status === 'error').length
+  
+  let message = ''
+  
+  if (successCount > 0) {
+    message += `实时新增签到成功<font color="info">${successCount}例</font>，请相关同事注意。\n`
+    message += `> 类型:<font color="comment">自动签到</font>\n`
+    message += `> 成功账号:<font color="comment">${successCount}个</font>\n`
+  }
+  
+  if (errorCount > 0) {
+    if (message) message += '\n'
+    message += `实时新增签到失败<font color="warning">${errorCount}例</font>，请相关同事注意。\n`
+    message += `> 类型:<font color="comment">自动签到</font>\n`
+    message += `> 失败账号:<font color="comment">${errorCount}个</font>\n`
+  }
+  
+  // 添加详细信息
+  const detailMessages = notices.map(notice => {
+    if (notice.status === 'success') {
+      return `✅ ${notice.title}
+> 账号:<font color="comment">${notice.message}</font>
+> 状态:<font color="info">签到成功</font>
+> 时间:<font color="comment">${new Date().toLocaleString('zh-CN')}</font>`
+    } else {
+      return `❌ ${notice.title}
+> 账号:<font color="comment">${notice.message}</font>
+> 状态:<font color="warning">签到失败</font>
+> 时间:<font color="comment">${new Date().toLocaleString('zh-CN')}</font>
+> 详情:${notice.details || '无'}`
+    }
   })
   
-  return messages.join('\n\n---\n\n')
+  if (detailMessages.length > 0) {
+    message += '\n---\n\n' + detailMessages.join('\n\n---\n\n')
+  }
+  
+  return message
 }
 
 const notify = async (notices) => {
   if (!process.env.NOTIFY || !notices) return
   
   const formattedMessage = formatNoticeMessage(notices)
+  console.log('准备发送的通知内容:', formattedMessage)
   
   for (const qyweixinToken of String(process.env.NOTIFY).split('\n')) {
     if (!qyweixinToken) continue
     
     try {
-      const qyweixinNotifyRebotUrl = `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${qyweixinToken}`
+      // 修正：应该从环境变量中提取token，而不是硬编码
+      const token = qyweixinToken.includes(':') ? qyweixinToken.split(':')[1] : qyweixinToken
+      const qyweixinNotifyRebotUrl = `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${token}`
+      
+      console.log('发送到URL:', qyweixinNotifyRebotUrl)
+      
       const response = await fetch(qyweixinNotifyRebotUrl, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
