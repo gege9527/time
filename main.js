@@ -52,7 +52,7 @@ const notify = async (notices) => {
     
     try {
       const qyweixinNotifyRebotUrl = `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${qyweixinToken}`
-      await fetch(qyweixinNotifyRebotUrl, {
+      const response = await fetch(qyweixinNotifyRebotUrl, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -63,9 +63,18 @@ const notify = async (notices) => {
         }),
       })
       
-      console.log('✅ 企业微信通知发送成功')
+      // 添加响应状态检查
+      const responseBody = await response.text()
+      console.log('企业微信响应状态:', response.status)
+      console.log('企业微信响应内容:', responseBody)
+      
+      if (response.ok) {
+        console.log('✅ 企业微信通知发送成功')
+      } else {
+        console.error('❌ 企业微信通知发送失败:', response.status, responseBody)
+      }
     } catch (error) {
-      console.error('❌ 企业微信通知发送失败:', error.message || error)
+      console.error('❌ 企业微信通知发送异常:', error.message || error)
     }
   }
 }
