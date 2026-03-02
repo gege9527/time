@@ -30,9 +30,6 @@ const formatNoticeMessage = (notices) => {
     return '<font color="warning">⚠️ 未检测到任何签到任务</font>'
   }
   
-  const successCount = notices.filter(n => n.status === 'success').length
-  const errorCount = notices.filter(n => n.status === 'error').length
-  
   let message = ''
   
   // 添加详细信息
@@ -52,7 +49,7 @@ const formatNoticeMessage = (notices) => {
   })
   
   if (detailMessages.length > 0) {
-    message += '\n---\n\n' + detailMessages.join('\n\n---\n\n')
+    message += detailMessages.join('\n\n---\n\n')
   }
   
   return message
@@ -68,9 +65,7 @@ const notify = async (notices) => {
     if (!qyweixinToken) continue
     
     try {
-      // 修正：应该从环境变量中提取token，而不是硬编码
-      const token = qyweixinToken.includes(':') ? qyweixinToken.split(':')[1] : qyweixinToken
-      const qyweixinNotifyRebotUrl = `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${token}`
+      const qyweixinNotifyRebotUrl = `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${qyweixinToken}`
       
       console.log('发送到URL:', qyweixinNotifyRebotUrl)
       
