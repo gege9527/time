@@ -35,19 +35,6 @@ const formatNoticeMessage = (notices) => {
   
   let message = ''
   
-  if (successCount > 0) {
-    message += `实时新增签到成功<font color="info">${successCount}例</font>，请相关同事注意。\n`
-    message += `> 类型:<font color="comment">自动签到</font>\n`
-    message += `> 成功账号:<font color="comment">${successCount}个</font>\n`
-  }
-  
-  if (errorCount > 0) {
-    if (message) message += '\n'
-    message += `实时新增签到失败<font color="warning">${errorCount}例</font>，请相关同事注意。\n`
-    message += `> 类型:<font color="comment">自动签到</font>\n`
-    message += `> 失败账号:<font color="comment">${errorCount}个</font>\n`
-  }
-  
   // 添加详细信息
   const detailMessages = notices.map(notice => {
     if (notice.status === 'success') {
